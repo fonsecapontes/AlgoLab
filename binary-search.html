@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Binary Search Visualizer</title>
+  <link rel="stylesheet" href="binary-search.css" />
+</head>
+<body>
+<div class="card">
+  <h1>Binary Search Visualizer</h1>
+  <p class="subtitle">Array is always sorted. Each step halves the search space — O(log n).</p>
+
+  <div id="array-row"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="ldot" style="background:#60a5fa"></div>Left (L)</div>
+    <div class="legend-item"><div class="ldot" style="background:#facc15"></div>Mid (M)</div>
+    <div class="legend-item"><div class="ldot" style="background:#f472b6"></div>Right (R)</div>
+    <div class="legend-item"><div class="ldot" style="background:#1e293b;border:1px solid #334155"></div>Eliminated</div>
+    <div class="legend-item"><div class="ldot" style="background:#22c55e"></div>Found</div>
+  </div>
+
+  <div id="status" class="idle">Enter a number and press Search</div>
+
+  <div class="controls">
+    <input type="number" id="inp" placeholder="Number to find (1–99)" min="1" max="99" />
+    <button id="btn-search">Search</button>
+    <button id="btn-step"   disabled>Step</button>
+    <button id="btn-auto"   disabled>Auto</button>
+    <button id="btn-reset"  disabled>Reset</button>
+    <button id="btn-new">New Array</button>
+  </div>
+
+  <div id="step-counter"></div>
+
+  <div id="guide">
+    <div class="guide-icon">💡</div>
+    <div class="guide-text">
+      <strong>How binary search works:</strong> Because the array is sorted, we can check the
+      <em>middle</em> element and immediately discard half the array. Enter a number and press
+      <strong>Search</strong>, then step through to see it in action.
+    </div>
+  </div>
+
+  <div id="log"><div class="log-line">Search log will appear here…</div></div>
+</div>
+
+<script>
+  /* ── State ── */
+  let arr = [], steps = [], stepIdx = -1, done = false, notFound = false, autoTimer = null;
+
+  /* ── DOM refs ── */
+  const arrayRow    = document.getElementById('array-row');
+  const statusEl    = document.getElementById('status');
+  const logEl       = document.getElementById('log');
+  const stepCounter = document.getElementById('step-counter');
+  const inp         = document.getElementById('inp');
+  const btnSearch   = document.getElementById('btn-search');
+  const btnStep     = document.getElementById('btn-step');
+  const btnAuto     = document.getElementById('btn-auto');
+  const btnReset    = document.getElementById('btn-reset');
+  const btnNew      = document.getElementById('btn-new');
+  const guideEl     = document.getElementById('guide');
+
+  /* ── Helpers ── */
+  function genArray() {
+    const s = new Set();
+    while (s.size < 10) s.add(Math.floor(Math.random() * 99) + 1);
+    return [...s].sort((a, b) => a - b);
+  }
+
+  function buildSteps(a, t) {
+    const out = [];
+    let lo = 0, hi = a.length - 1;
+    while (lo <= hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      out.push({ lo, hi, mid, found: a[mid] === t });
+      if (a[mid] === t) break;
+      else if (a[mid] < t) lo = mid + 1;
+      else hi = mid - 1;
+    }
+    return out;
+  }
+
+  /* ── Render array ── */
+  function renderArray() {
+    arrayRow.innerHTML = '';
+    const s = (stepIdx >= 0 && stepIdx < steps.length) ? steps[stepIdx] : null;
+
+    arr.forEach((val, i) => {
+      const wrap  = document.createElement('div');
+      wrap.className = 'cell-wrap';
+
+      /* label row */
+      const lbl = document.createElement('div');
+      lbl.className = 'cell-label';
+      if (s) {
+        const tags = [];
+        if (i === s.lo && i === s.hi)   tags.push('<span class="lbl-M">L·M·R</span>');
+        else if (i === s.lo && i === s.mid) tags.push('<span class="lbl-M">L·M</span>');
+        else if (i === s.hi && i === s.mid) tags.push('<span class="lbl-M">M·R</span>');
+        else {
+          if (i === s.lo)  tags.push('<span class="lbl-L">L</span>');
+          if (i === s.mid) tags.push('<span class="lbl-M">M</span>');
+          if (i === s.hi)  tags.push('<span class="lbl-R">R</span>');
+        }
+        lbl.innerHTML = tags.length ? tags.join(' ') : `<span class="lbl-i">${i}</span>`;
+      } else {
+        lbl.innerHTML = `<span class="lbl-i">${i}</span>`;
+      }
+
+      /* cell */
+      const cell = document.createElement('div');
+      let cls = 'default';
+      if (s) {
+        if (done && notFound)                      cls = 'notfound';
+        else if (done && s.found && i === s.mid)   cls = 'found';
+        else if (i === s.mid)                      cls = 'mid';
+        else if (i >= s.lo && i <= s.hi)           cls = 'active';
+        else                                       cls = 'eliminated';
+      }
+      cell.className = `cell ${cls}`;
+      cell.textContent = val;
+
+      wrap.appendChild(lbl);
+      wrap.appendChild(cell);
+      arrayRow.appendChild(wrap);
+    });
+  }
+
+  /* ── Log ── */
+  function appendLog(msg, type = '') {
+    if (logEl.querySelector('.log-line') && logEl.querySelector('.log-line').textContent === 'Search log will appear here…') {
+      logEl.innerHTML = '';
+    }
+    const d = document.createElement('div');
+    d.className = `log-line ${type}`;
+    d.textContent = msg;
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  /* ── Guide ── */
+  function setGuide(html, type = '') {
+    guideEl.className = type;
+    guideEl.querySelector('.guide-text').innerHTML = html;
+  }
+
+  function guideForStep(s, t, isLast) {
+    const mid = s.mid, lo = s.lo, hi = s.hi;
+    const midVal = arr[mid];
+    const rangeSize = hi - lo + 1;
+    const formula = `mid = ⌊(${lo} + ${hi}) / 2⌋ = <strong>${mid}</strong>`;
+
+    if (s.found) {
+      return [
+        [
+          `<strong>🎉 Found it!</strong> ${formula}.`,
+          `arr[${mid}] = <strong>${midVal}</strong> matches the target <strong>${t}</strong>.`,
+          `Binary search found the value in <strong>${stepIdx + 1} step${stepIdx ? 's' : ''}</strong> —`,
+          `a brute-force scan could have taken up to <strong>${arr.length}</strong>.`
+        ].join(' '),
+        'success'
+      ];
+    }
+
+    if (isLast) {
+      return [
+        [
+          `<strong>❌ Not found.</strong> The left pointer (${lo}) has crossed the right pointer (${hi}),`,
+          `meaning there is no space left to search.`,
+          `<strong>${t}</strong> does not exist in this array.`
+        ].join(' '),
+        'fail'
+      ];
+    }
+
+    const cmp = midVal < t
+      ? `arr[${mid}] = <strong>${midVal}</strong> &lt; <strong>${t}</strong> — the target is <em>larger</em>, so we discard the left half and move <span class="lbl-L">L</span> to index ${mid + 1}.`
+      : `arr[${mid}] = <strong>${midVal}</strong> &gt; <strong>${t}</strong> — the target is <em>smaller</em>, so we discard the right half and move <span class="lbl-R">R</span> to index ${mid - 1}.`;
+
+    return [
+      [
+        `<strong>Step ${stepIdx + 1}:</strong> Search window is indices ${lo}–${hi} (${rangeSize} element${rangeSize > 1 ? 's' : ''}).`,
+        `${formula}. We inspect <strong>arr[${mid}] = ${midVal}</strong>.`,
+        cmp
+      ].join(' '),
+      'running'
+    ];
+  }
+
+  /* ── Status ── */
+  function setStatus(text, cls) {
+    statusEl.textContent = text;
+    statusEl.className = cls;
+  }
+
+  /* ── Button states ── */
+  function updateButtons() {
+    const hasSteps   = steps.length > 0;
+    const isRunning  = !!autoTimer;
+    const isFinished = done;
+
+    btnStep.disabled  = !hasSteps || isFinished || isRunning;
+    btnAuto.disabled  = !hasSteps || (isFinished && !isRunning);
+    btnReset.disabled = !hasSteps;
+    btnAuto.textContent = isRunning ? 'Pause' : 'Auto';
+  }
+
+  function updateCounter() {
+    if (!steps.length) { stepCounter.textContent = ''; return; }
+    stepCounter.textContent = `Step ${stepIdx === -1 ? 0 : stepIdx + 1} / ${steps.length}`;
+  }
+
+  /* ── Core actions ── */
+  function startSearch() {
+    const t = parseInt(inp.value, 10);
+    if (isNaN(t)) return;
+    stopAuto();
+    steps   = buildSteps(arr, t);
+    stepIdx = -1;
+    done    = false;
+    notFound= false;
+    logEl.innerHTML = '';
+    appendLog(`Searching for ${t} in [ ${arr.join(', ')} ]`, 'hl');
+    setStatus('Ready — press Step or Auto to begin', 'idle');
+    setGuide(
+      `We want to find <strong>${t}</strong> in a sorted array of ${arr.length} elements. ` +
+      `We'll start with <span class="lbl-L">L</span> = 0 and <span class="lbl-R">R</span> = ${arr.length - 1}, ` +
+      `then repeatedly halve the search window. Press <strong>Step</strong> to begin.`,
+      'ready'
+    );
+    renderArray();
+    updateCounter();
+    updateButtons();
+  }
+
+  function advance() {
+    if (stepIdx + 1 >= steps.length) return;
+    stepIdx++;
+    const s = steps[stepIdx];
+    const t = parseInt(inp.value, 10);
+
+    appendLog(`Step ${stepIdx + 1}: lo=${s.lo}  hi=${s.hi}  mid=${s.mid}  →  arr[${s.mid}] = ${arr[s.mid]}`, 'hl');
+
+    const isLast = stepIdx === steps.length - 1;
+    const [guideHtml, guideType] = guideForStep(s, t, isLast && !s.found);
+
+    if (s.found) {
+      appendLog(`✓ Found ${arr[s.mid]} at index ${s.mid}!`, 'success');
+      setStatus(`Found ${arr[s.mid]} at index ${s.mid}!`, 'success');
+      done = true;
+    } else if (isLast) {
+      appendLog(`✗ ${t} is not in the array.`, 'fail');
+      setStatus(`${t} is not in the array`, 'fail');
+      done = true; notFound = true;
+    } else {
+      if (arr[s.mid] < t)
+        appendLog(`  arr[${s.mid}]=${arr[s.mid]} < ${t} → move left pointer right`, '');
+      else
+        appendLog(`  arr[${s.mid}]=${arr[s.mid]} > ${t} → move right pointer left`, '');
+      setStatus(`Step ${stepIdx + 1} of ${steps.length}`, 'running');
+    }
+
+    setGuide(guideHtml, guideType);
+    renderArray();
+    updateCounter();
+    updateButtons();
+  }
+
+  function stopAuto() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    updateButtons();
+  }
+
+  function toggleAuto() {
+    if (autoTimer) { stopAuto(); return; }
+    if (!steps.length || done) return;
+    autoTimer = setInterval(() => {
+      if (done || stepIdx + 1 >= steps.length) { stopAuto(); return; }
+      advance();
+      if (done) stopAuto();
+    }, 800);
+    updateButtons();
+  }
+
+  function reset() {
+    stopAuto();
+    steps = []; stepIdx = -1; done = false; notFound = false;
+    logEl.innerHTML = '<div class="log-line">Search log will appear here…</div>';
+    setStatus('Enter a number and press Search', 'idle');
+    setGuide(
+      '<strong>How binary search works:</strong> Because the array is sorted, we can check the ' +
+      '<em>middle</em> element and immediately discard half the array. Enter a number and press ' +
+      '<strong>Search</strong>, then step through to see it in action.',
+      ''
+    );
+    renderArray();
+    updateCounter();
+    updateButtons();
+  }
+
+  function newArray() {
+    reset();
+    inp.value = '';
+    arr = genArray();
+    renderArray();
+  }
+
+  /* ── Event listeners ── */
+  btnSearch.addEventListener('click', startSearch);
+  btnStep.addEventListener('click', advance);
+  btnAuto.addEventListener('click', toggleAuto);
+  btnReset.addEventListener('click', reset);
+  btnNew.addEventListener('click', newArray);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') startSearch(); });
+  inp.addEventListener('input', () => { if (steps.length) reset(); });
+
+  /* ── Init ── */
+  arr = genArray();
+  renderArray();
+  updateButtons();
+</script>
+</body>
+</html>
