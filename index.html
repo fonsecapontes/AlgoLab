@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AlgoLab</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    header h1 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #f8fafc;
+      letter-spacing: -0.02em;
+    }
+
+    header p {
+      font-size: 0.95rem;
+      color: #64748b;
+      margin-top: 8px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+      width: 100%;
+      max-width: 820px;
+    }
+
+    .algo-card {
+      background: #1e293b;
+      border-radius: 14px;
+      padding: 28px 24px;
+      border: 1px solid #334155;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .algo-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .algo-card .tag {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #3b82f6;
+    }
+
+    .algo-card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .algo-card p {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+
+    .algo-card .complexity {
+      margin-top: auto;
+      padding-top: 14px;
+      font-size: 0.78rem;
+      color: #475569;
+      border-top: 1px solid #334155;
+    }
+
+    .algo-card .complexity code {
+      color: #facc15;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>AlgoLab</h1>
+    <p>A visual playground to explore and understand algorithms.</p>
+  </header>
+
+  <div class="grid">
+    <a href="binary-search.html" class="algo-card">
+      <span class="tag">Searching</span>
+      <h2>Binary Search</h2>
+      <p>Watch how a sorted array is repeatedly halved to zero in on a target value, step by step.</p>
+      <div class="complexity">Time: <code>O(log n)</code> &nbsp;·&nbsp; Space: <code>O(1)</code></div>
+    </a>
+  </div>
+</body>
+</html>
