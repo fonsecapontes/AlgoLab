@@ -13,104 +13,503 @@
       color: #e2e8f0;
       min-height: 100vh;
       display: flex;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px;
+      min-height: 100vh;
+      background: #1e293b;
+      border-right: 1px solid #334155;
+      display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
+      padding: 24px 0;
+      flex-shrink: 0;
     }
 
-    header {
-      text-align: center;
-      margin-bottom: 48px;
-    }
-
-    header h1 {
-      font-size: 2.4rem;
+    .logo {
+      font-size: 1.3rem;
       font-weight: 800;
       color: #f8fafc;
       letter-spacing: -0.02em;
+      padding: 0 20px 24px;
+      border-bottom: 1px solid #334155;
     }
 
-    header p {
-      font-size: 0.95rem;
-      color: #64748b;
-      margin-top: 8px;
+    .nav-section {
+      padding: 20px 20px 4px;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 20px;
-      width: 100%;
-      max-width: 820px;
-    }
-
-    .algo-card {
-      background: #1e293b;
-      border-radius: 14px;
-      padding: 28px 24px;
-      border: 1px solid #334155;
-      text-decoration: none;
-      color: inherit;
-      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .algo-card:hover {
-      border-color: #3b82f6;
-      transform: translateY(-3px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
-    }
-
-    .algo-card .tag {
-      font-size: 0.7rem;
+    .nav-category {
+      font-size: 0.65rem;
       font-weight: 700;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: #3b82f6;
-    }
-
-    .algo-card h2 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #f8fafc;
-    }
-
-    .algo-card p {
-      font-size: 0.82rem;
-      color: #94a3b8;
-      line-height: 1.6;
-    }
-
-    .algo-card .complexity {
-      margin-top: auto;
-      padding-top: 14px;
-      font-size: 0.78rem;
       color: #475569;
-      border-top: 1px solid #334155;
+      margin-bottom: 6px;
     }
 
-    .algo-card .complexity code {
-      color: #facc15;
-      font-family: 'Courier New', monospace;
+    .nav-link {
+      display: block;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      user-select: none;
+    }
+
+    .nav-link:hover { background: #273549; color: #e2e8f0; }
+    .nav-link.active { background: #1d3557; color: #60a5fa; font-weight: 600; }
+
+    /* ── Main content ── */
+    .content {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 24px;
+      overflow-y: auto;
+    }
+
+    .algo-view { display: none; width: 100%; max-width: 820px; }
+    .algo-view.active { display: block; }
+
+    /* ── Binary Search styles ── */
+    .card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 36px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    }
+
+    h1 { font-size: 1.6rem; font-weight: 700; color: #f8fafc; margin-bottom: 6px; }
+    .subtitle { font-size: 0.85rem; color: #94a3b8; margin-bottom: 28px; }
+
+    #array-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .cell-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+    .cell {
+      width: 60px; height: 60px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; font-weight: 700;
+      border: 2px solid transparent;
+      transition: background 0.35s, border-color 0.35s, transform 0.25s, color 0.25s;
+    }
+
+    .cell.default    { background: #334155; border-color: #475569; color: #cbd5e1; }
+    .cell.eliminated { background: #1e293b; border-color: #2d3d50; color: #3d5068; }
+    .cell.active     { background: #1e3a5f; border-color: #3b82f6; color: #93c5fd; }
+    .cell.mid        { background: #1e3a5f; border-color: #facc15; color: #fde68a; transform: scale(1.13); }
+    .cell.found      { background: #14532d; border-color: #22c55e; color: #86efac; transform: scale(1.16); }
+    .cell.notfound   { background: #3f0f0f; border-color: #ef4444; color: #fca5a5; }
+
+    .cell-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em; height: 14px; }
+    .lbl-L { color: #60a5fa; }
+    .lbl-M { color: #facc15; }
+    .lbl-R { color: #f472b6; }
+    .lbl-i { color: #475569; }
+
+    .legend {
+      display: flex; justify-content: center; gap: 18px;
+      margin-bottom: 20px; flex-wrap: wrap;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #94a3b8; }
+    .ldot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    #status {
+      text-align: center; font-size: 1rem; font-weight: 600;
+      padding: 9px; border-radius: 8px; margin-bottom: 18px;
+      transition: background 0.3s, color 0.3s;
+    }
+    #status.idle    { background: #1e293b; color: #64748b; border: 1px solid #334155; }
+    #status.running { background: #1e3a5f; color: #93c5fd; border: 1px solid #3b82f6; }
+    #status.success { background: #14532d; color: #4ade80; border: 1px solid #22c55e; }
+    #status.fail    { background: #3f0f0f; color: #f87171; border: 1px solid #ef4444; }
+
+    .controls { display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
+
+    input[type="number"] {
+      flex: 1; min-width: 120px;
+      padding: 10px 14px;
+      border-radius: 8px; border: 2px solid #334155;
+      background: #0f172a; color: #f8fafc;
+      font-size: 1rem; outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="number"]:focus { border-color: #3b82f6; }
+
+    button {
+      padding: 10px 18px; border-radius: 8px; border: none;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    button:active:not(:disabled) { transform: scale(0.96); }
+    button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    #btn-search { background: #3b82f6; color: #fff; }
+    #btn-step   { background: #8b5cf6; color: #fff; }
+    #btn-auto   { background: #0891b2; color: #fff; }
+    #btn-reset  { background: #475569; color: #e2e8f0; }
+    #btn-new    { background: #0f766e; color: #fff; }
+
+    #step-counter { text-align: center; font-size: 0.8rem; color: #64748b; margin-bottom: 8px; min-height: 18px; }
+
+    #guide {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-left: 4px solid #475569;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      transition: border-color 0.3s, background 0.3s;
+      min-height: 64px;
+    }
+    #guide.ready   { border-left-color: #3b82f6; background: #0d1f35; }
+    #guide.running { border-left-color: #8b5cf6; background: #130f23; }
+    #guide.success { border-left-color: #22c55e; background: #071c10; }
+    #guide.fail    { border-left-color: #ef4444; background: #1c0707; }
+
+    .guide-icon { font-size: 1.25rem; flex-shrink: 0; line-height: 1.5; }
+    .guide-text { font-size: 0.88rem; color: #94a3b8; line-height: 1.65; }
+    #guide.ready   .guide-text { color: #93c5fd; }
+    #guide.running .guide-text { color: #c4b5fd; }
+    #guide.success .guide-text { color: #86efac; }
+    #guide.fail    .guide-text { color: #fca5a5; }
+    .guide-text strong { font-weight: 700; }
+    .guide-text em     { font-style: italic; }
+
+    #log {
+      background: #0f172a; border-radius: 10px; padding: 14px;
+      min-height: 120px; max-height: 210px; overflow-y: auto;
+      border: 1px solid #334155;
+    }
+    .log-line { padding: 5px 0; border-bottom: 1px solid #1e293b; font-size: 0.82rem; color: #64748b; line-height: 1.5; }
+    .log-line:last-child { border-bottom: none; }
+    .log-line.hl      { color: #cbd5e1; }
+    .log-line.success { color: #4ade80; font-weight: 600; }
+    .log-line.fail    { color: #f87171; font-weight: 600; }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .sidebar { width: 160px; }
+      .content { padding: 20px 12px; }
+      .card { padding: 20px; }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>AlgoLab</h1>
-    <p>A visual playground to explore and understand algorithms.</p>
-  </header>
 
-  <div class="grid">
-    <a href="binary-search.html" class="algo-card">
-      <span class="tag">Searching</span>
-      <h2>Binary Search</h2>
-      <p>Watch how a sorted array is repeatedly halved to zero in on a target value, step by step.</p>
-      <div class="complexity">Time: <code>O(log n)</code> &nbsp;·&nbsp; Space: <code>O(1)</code></div>
-    </a>
+<aside class="sidebar">
+  <div class="logo">AlgoLab</div>
+
+  <div class="nav-section">
+    <div class="nav-category">Searching</div>
+    <div class="nav-link active" data-view="binary-search">Binary Search</div>
   </div>
+</aside>
+
+<main class="content">
+
+  <!-- Binary Search -->
+  <div id="binary-search" class="algo-view active">
+    <div class="card">
+      <h1>Binary Search</h1>
+      <p class="subtitle">Array is always sorted. Each step halves the search space — O(log n).</p>
+
+      <div id="array-row"></div>
+
+      <div class="legend">
+        <div class="legend-item"><div class="ldot" style="background:#60a5fa"></div>Left (L)</div>
+        <div class="legend-item"><div class="ldot" style="background:#facc15"></div>Mid (M)</div>
+        <div class="legend-item"><div class="ldot" style="background:#f472b6"></div>Right (R)</div>
+        <div class="legend-item"><div class="ldot" style="background:#1e293b;border:1px solid #334155"></div>Eliminated</div>
+        <div class="legend-item"><div class="ldot" style="background:#22c55e"></div>Found</div>
+      </div>
+
+      <div id="status" class="idle">Enter a number and press Search</div>
+
+      <div class="controls">
+        <input type="number" id="inp" placeholder="Number to find (1–99)" min="1" max="99" />
+        <button id="btn-search">Search</button>
+        <button id="btn-step"  disabled>Step</button>
+        <button id="btn-auto"  disabled>Auto</button>
+        <button id="btn-reset" disabled>Reset</button>
+        <button id="btn-new">New Array</button>
+      </div>
+
+      <div id="step-counter"></div>
+
+      <div id="guide">
+        <div class="guide-icon">💡</div>
+        <div class="guide-text">
+          <strong>How binary search works:</strong> Because the array is sorted, we can check the
+          <em>middle</em> element and immediately discard half the array. Enter a number and press
+          <strong>Search</strong>, then step through to see it in action.
+        </div>
+      </div>
+
+      <div id="log"><div class="log-line">Search log will appear here…</div></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  /* ── Navigation ── */
+  document.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+      document.querySelectorAll('.algo-view').forEach(v => v.classList.remove('active'));
+      link.classList.add('active');
+      document.getElementById(link.dataset.view).classList.add('active');
+    });
+  });
+
+  /* ── Binary Search ── */
+  let arr = [], steps = [], stepIdx = -1, done = false, notFound = false, autoTimer = null;
+
+  const arrayRow    = document.getElementById('array-row');
+  const statusEl    = document.getElementById('status');
+  const logEl       = document.getElementById('log');
+  const stepCounter = document.getElementById('step-counter');
+  const inp         = document.getElementById('inp');
+  const btnSearch   = document.getElementById('btn-search');
+  const btnStep     = document.getElementById('btn-step');
+  const btnAuto     = document.getElementById('btn-auto');
+  const btnReset    = document.getElementById('btn-reset');
+  const btnNew      = document.getElementById('btn-new');
+  const guideEl     = document.getElementById('guide');
+
+  function genArray() {
+    const s = new Set();
+    while (s.size < 10) s.add(Math.floor(Math.random() * 99) + 1);
+    return [...s].sort((a, b) => a - b);
+  }
+
+  function buildSteps(a, t) {
+    const out = [];
+    let lo = 0, hi = a.length - 1;
+    while (lo <= hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      out.push({ lo, hi, mid, found: a[mid] === t });
+      if (a[mid] === t) break;
+      else if (a[mid] < t) lo = mid + 1;
+      else hi = mid - 1;
+    }
+    return out;
+  }
+
+  function renderArray() {
+    arrayRow.innerHTML = '';
+    const s = (stepIdx >= 0 && stepIdx < steps.length) ? steps[stepIdx] : null;
+    arr.forEach((val, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'cell-wrap';
+
+      const lbl = document.createElement('div');
+      lbl.className = 'cell-label';
+      if (s) {
+        const tags = [];
+        if (i === s.lo && i === s.hi)       tags.push('<span class="lbl-M">L·M·R</span>');
+        else if (i === s.lo && i === s.mid) tags.push('<span class="lbl-M">L·M</span>');
+        else if (i === s.hi && i === s.mid) tags.push('<span class="lbl-M">M·R</span>');
+        else {
+          if (i === s.lo)  tags.push('<span class="lbl-L">L</span>');
+          if (i === s.mid) tags.push('<span class="lbl-M">M</span>');
+          if (i === s.hi)  tags.push('<span class="lbl-R">R</span>');
+        }
+        lbl.innerHTML = tags.length ? tags.join(' ') : `<span class="lbl-i">${i}</span>`;
+      } else {
+        lbl.innerHTML = `<span class="lbl-i">${i}</span>`;
+      }
+
+      const cell = document.createElement('div');
+      let cls = 'default';
+      if (s) {
+        if (done && notFound)                    cls = 'notfound';
+        else if (done && s.found && i === s.mid) cls = 'found';
+        else if (i === s.mid)                    cls = 'mid';
+        else if (i >= s.lo && i <= s.hi)         cls = 'active';
+        else                                     cls = 'eliminated';
+      }
+      cell.className = `cell ${cls}`;
+      cell.textContent = val;
+
+      wrap.appendChild(lbl);
+      wrap.appendChild(cell);
+      arrayRow.appendChild(wrap);
+    });
+  }
+
+  function appendLog(msg, type = '') {
+    if (logEl.querySelector('.log-line')?.textContent === 'Search log will appear here…') {
+      logEl.innerHTML = '';
+    }
+    const d = document.createElement('div');
+    d.className = `log-line ${type}`;
+    d.textContent = msg;
+    logEl.appendChild(d);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function setGuide(html, type = '') {
+    guideEl.className = type;
+    guideEl.querySelector('.guide-text').innerHTML = html;
+  }
+
+  function guideForStep(s, t, isLast) {
+    const { mid, lo, hi } = s;
+    const midVal = arr[mid];
+    const rangeSize = hi - lo + 1;
+    const formula = `mid = ⌊(${lo} + ${hi}) / 2⌋ = <strong>${mid}</strong>`;
+
+    if (s.found) {
+      return [
+        `<strong>🎉 Found it!</strong> ${formula}. arr[${mid}] = <strong>${midVal}</strong> matches the target <strong>${t}</strong>. ` +
+        `Binary search found the value in <strong>${stepIdx + 1} step${stepIdx ? 's' : ''}</strong> — a brute-force scan could have taken up to <strong>${arr.length}</strong>.`,
+        'success'
+      ];
+    }
+
+    if (isLast) {
+      return [
+        `<strong>❌ Not found.</strong> The left pointer (${lo}) has crossed the right pointer (${hi}), ` +
+        `meaning there is no space left to search. <strong>${t}</strong> does not exist in this array.`,
+        'fail'
+      ];
+    }
+
+    const cmp = midVal < t
+      ? `arr[${mid}] = <strong>${midVal}</strong> &lt; <strong>${t}</strong> — the target is <em>larger</em>, so we discard the left half and move <span class="lbl-L">L</span> to index ${mid + 1}.`
+      : `arr[${mid}] = <strong>${midVal}</strong> &gt; <strong>${t}</strong> — the target is <em>smaller</em>, so we discard the right half and move <span class="lbl-R">R</span> to index ${mid - 1}.`;
+
+    return [
+      `<strong>Step ${stepIdx + 1}:</strong> Search window is indices ${lo}–${hi} (${rangeSize} element${rangeSize > 1 ? 's' : ''}). ${formula}. We inspect <strong>arr[${mid}] = ${midVal}</strong>. ${cmp}`,
+      'running'
+    ];
+  }
+
+  function setStatus(text, cls) { statusEl.textContent = text; statusEl.className = cls; }
+
+  function updateButtons() {
+    const isRunning = !!autoTimer;
+    btnStep.disabled  = !steps.length || done || isRunning;
+    btnAuto.disabled  = !steps.length || (done && !isRunning);
+    btnReset.disabled = !steps.length;
+    btnAuto.textContent = isRunning ? 'Pause' : 'Auto';
+  }
+
+  function updateCounter() {
+    stepCounter.textContent = steps.length
+      ? `Step ${stepIdx === -1 ? 0 : stepIdx + 1} / ${steps.length}`
+      : '';
+  }
+
+  function startSearch() {
+    const t = parseInt(inp.value, 10);
+    if (isNaN(t)) return;
+    stopAuto();
+    steps = buildSteps(arr, t);
+    stepIdx = -1; done = false; notFound = false;
+    logEl.innerHTML = '';
+    appendLog(`Searching for ${t} in [ ${arr.join(', ')} ]`, 'hl');
+    setStatus('Ready — press Step or Auto to begin', 'idle');
+    setGuide(
+      `We want to find <strong>${t}</strong> in a sorted array of ${arr.length} elements. ` +
+      `We'll start with <span class="lbl-L">L</span> = 0 and <span class="lbl-R">R</span> = ${arr.length - 1}, ` +
+      `then repeatedly halve the search window. Press <strong>Step</strong> to begin.`,
+      'ready'
+    );
+    renderArray(); updateCounter(); updateButtons();
+  }
+
+  function advance() {
+    if (stepIdx + 1 >= steps.length) return;
+    stepIdx++;
+    const s = steps[stepIdx];
+    const t = parseInt(inp.value, 10);
+    const isLast = stepIdx === steps.length - 1;
+
+    appendLog(`Step ${stepIdx + 1}: lo=${s.lo}  hi=${s.hi}  mid=${s.mid}  →  arr[${s.mid}] = ${arr[s.mid]}`, 'hl');
+    const [guideHtml, guideType] = guideForStep(s, t, isLast && !s.found);
+
+    if (s.found) {
+      appendLog(`✓ Found ${arr[s.mid]} at index ${s.mid}!`, 'success');
+      setStatus(`Found ${arr[s.mid]} at index ${s.mid}!`, 'success');
+      done = true;
+    } else if (isLast) {
+      appendLog(`✗ ${t} is not in the array.`, 'fail');
+      setStatus(`${t} is not in the array`, 'fail');
+      done = true; notFound = true;
+    } else {
+      appendLog(arr[s.mid] < t
+        ? `  arr[${s.mid}]=${arr[s.mid]} < ${t} → move left pointer right`
+        : `  arr[${s.mid}]=${arr[s.mid]} > ${t} → move right pointer left`
+      );
+      setStatus(`Step ${stepIdx + 1} of ${steps.length}`, 'running');
+    }
+
+    setGuide(guideHtml, guideType);
+    renderArray(); updateCounter(); updateButtons();
+  }
+
+  function stopAuto() {
+    if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    updateButtons();
+  }
+
+  function toggleAuto() {
+    if (autoTimer) { stopAuto(); return; }
+    if (!steps.length || done) return;
+    autoTimer = setInterval(() => {
+      if (done || stepIdx + 1 >= steps.length) { stopAuto(); return; }
+      advance();
+      if (done) stopAuto();
+    }, 800);
+    updateButtons();
+  }
+
+  function reset() {
+    stopAuto();
+    steps = []; stepIdx = -1; done = false; notFound = false;
+    logEl.innerHTML = '<div class="log-line">Search log will appear here…</div>';
+    setStatus('Enter a number and press Search', 'idle');
+    setGuide(
+      '<strong>How binary search works:</strong> Because the array is sorted, we can check the ' +
+      '<em>middle</em> element and immediately discard half the array. Enter a number and press ' +
+      '<strong>Search</strong>, then step through to see it in action.',
+      ''
+    );
+    renderArray(); updateCounter(); updateButtons();
+  }
+
+  function newArray() { reset(); inp.value = ''; arr = genArray(); renderArray(); }
+
+  btnSearch.addEventListener('click', startSearch);
+  btnStep.addEventListener('click', advance);
+  btnAuto.addEventListener('click', toggleAuto);
+  btnReset.addEventListener('click', reset);
+  btnNew.addEventListener('click', newArray);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') startSearch(); });
+  inp.addEventListener('input', () => { if (steps.length) reset(); });
+
+  arr = genArray();
+  renderArray();
+  updateButtons();
+</script>
 </body>
 </html>
