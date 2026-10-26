@@ -26,3 +26,14 @@ Constraints:
 
 0 <= s.length <= 5 * 10^4
 s consists of English letters, digits, symbols and spaces.
+
+## Solution
+1. Crio um dicionario<char, int>
+1. instancio left e longest com 0
+1. percorro toda string no for right
+1. para cada caracter
+1. Verifico se existe no dicionario e se o indice dele e maior que left
+    1. se for left recebe o indice do dicionario +1
+1. salvo no dicionario o right
+1. longest recebe o maior entre ele e (right - left +1)
+1. No fim retorno longest
