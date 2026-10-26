@@ -1,0 +1,16 @@
+# Build outputs
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+TestResults/
+
+# Visual Studio / VS Code
+.vs/
+*.user
+*.suo
+.vscode/
+
+# NuGet
+*.nupkg
+project.lock.json
